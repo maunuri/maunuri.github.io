@@ -1,0 +1,17 @@
+body {
+    background: black;
+    margin:auto;
+    background-image: url(free-background-4.jpg);
+    min-height:100%;
+}
+
+.content {
+    width:70%;
+    margin:auto;
+    min-height:100%;
+}
+
+h1 {
+    color:green;
+}
+
