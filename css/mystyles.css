@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap");
 /* Bulma Utilities */
 .button, .input, .textarea, .select select, .file-cta,
 .file-name {
@@ -188,7 +188,7 @@ pre {
   font-family: monospace; }
 
 body {
-  color: #757763;
+  color: black;
   font-size: 1em;
   font-weight: 400;
   line-height: 1.5; }
@@ -241,7 +241,7 @@ fieldset {
 pre {
   -webkit-overflow-scrolling: touch;
   background-color: whitesmoke;
-  color: #757763;
+  color: black;
   font-size: 0.875em;
   overflow-x: auto;
   padding: 1.25rem 1.5rem;
@@ -305,12 +305,12 @@ table th {
     .button:focus:not(:active), .button.is-focused:not(:active) {
       box-shadow: 0 0 0 0.125em rgba(250, 124, 145, 0.25); }
   .button:active, .button.is-active {
-    border-color: #757763;
+    border-color: black;
     color: #363636; }
   .button.is-text {
     background-color: transparent;
     border-color: transparent;
-    color: #757763;
+    color: black;
     text-decoration: underline; }
     .button.is-text:hover, .button.is-text.is-hovered, .button.is-text:focus, .button.is-text.is-focused {
       background-color: whitesmoke;
@@ -1225,7 +1225,7 @@ table th {
     font-size: 0.75rem; }
 
 .subtitle {
-  color: #757763;
+  color: black;
   font-size: 1.25rem;
   font-weight: 400;
   line-height: 1.25; }
@@ -1811,7 +1811,7 @@ table th {
 
 .file-cta {
   background-color: whitesmoke;
-  color: #757763; }
+  color: black; }
 
 .file-name {
   border-color: #dbdbdb;
@@ -2012,7 +2012,7 @@ table th {
   .control.has-icons-left .input:focus ~ .icon,
   .control.has-icons-left .select:focus ~ .icon, .control.has-icons-right .input:focus ~ .icon,
   .control.has-icons-right .select:focus ~ .icon {
-    color: #757763; }
+    color: black; }
   .control.has-icons-left .input.is-small ~ .icon,
   .control.has-icons-left .select.is-small ~ .icon, .control.has-icons-right .input.is-small ~ .icon,
   .control.has-icons-right .select.is-small ~ .icon {
@@ -2554,7 +2554,7 @@ body.has-navbar-fixed-bottom {
   overflow-y: hidden; }
 
 .navbar-burger {
-  color: #757763;
+  color: black;
   cursor: pointer;
   display: block;
   height: 3.25rem;
@@ -2592,7 +2592,7 @@ body.has-navbar-fixed-bottom {
 
 .navbar-item,
 .navbar-link {
-  color: #757763;
+  color: black;
   display: block;
   line-height: 1.5;
   padding: 0.5rem 0.75rem;
