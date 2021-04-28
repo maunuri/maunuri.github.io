@@ -4,19 +4,21 @@ body {
 }
 
 .content {
-    width:70%;
+    width:66%;
     margin:auto;
     min-height:100%;
 }
 
 h1 {
+    margin:auto;
+    width:66%;
     margin-top:1em;
 }
 
 h2 {
-    
     margin-top:2em;
 }
+
 h4 {
     margin-top:1em;
 }
@@ -27,5 +29,6 @@ p {
 }
 
 iframe {
+    margin:auto;
     margin-top:1em;
 }
