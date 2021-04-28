@@ -2056,7 +2056,7 @@ table th {
     font-size: 1.5rem; }
 
 .navbar {
-  background-color: white;
+  background-color: none;
   min-height: 3.25rem;
   position: relative;
   z-index: 30; }
@@ -2674,7 +2674,7 @@ a.navbar-item,
   .navbar-link::after {
     display: none; }
   .navbar-menu {
-    background-color: white;
+    background-color: none;
     box-shadow: 0 8px 16px rgba(10, 10, 10, 0.1);
     padding: 0.5rem 0; }
     .navbar-menu.is-active {
