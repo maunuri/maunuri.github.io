@@ -297,7 +297,7 @@ table th {
     margin-left: calc(-0.5em - 2px);
     margin-right: calc(-0.5em - 2px); }
   .button:hover, .button.is-hovered {
-    border-color: #b5b5b5;
+    border-color: #D0D1CD;
     color: #363636; }
   .button:focus, .button.is-focused {
     border-color: #3273dc;
@@ -1264,7 +1264,7 @@ table th {
   .input:-ms-input-placeholder, .textarea:-ms-input-placeholder, .select select:-ms-input-placeholder {
     color: rgba(54, 54, 54, 0.3); }
   .input:hover, .textarea:hover, .select select:hover, .is-hovered.input, .is-hovered.textarea, .select select.is-hovered {
-    border-color: #b5b5b5; }
+    border-color: #D0D1CD; }
   .input:focus, .textarea:focus, .select select:focus, .is-focused.input, .is-focused.textarea, .select select.is-focused, .input:active, .textarea:active, .select select:active, .is-active.input, .is-active.textarea, .select select.is-active {
     border-color: #8A4D76;
     box-shadow: 0 0 0 0.125em rgba(138, 77, 118, 0.25); }
