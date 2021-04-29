@@ -52,6 +52,12 @@ html {
 
 }
 
+
+
+.title.is-1.acorn {
+    color:black;
+}
+
 .subtitle {
     margin:auto;
     color:white;
@@ -59,6 +65,8 @@ html {
     margin-top:2em;
     letter-spacing: 5px;
 }
+
+
 
 
 .content {
