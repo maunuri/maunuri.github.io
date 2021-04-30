@@ -3,7 +3,9 @@
     <meta charset="utf8">
     <title>Topi Ikonen</title>
     <link rel="stylesheet" href="/css/mystyles.css">
+    <link rel="stylesheet" href="/css/prism.css">
     <link rel="stylesheet" href="/css/styles.css">
+
 
 </head>
 <body>
@@ -148,8 +150,146 @@
   </div>
 
   <div class="block">
-    <h4 class="title">harjoitteet</h4>
-    -kerro tensorflowista <br/>
+    <h4 class="title is-3">harjoitteet</h4>
+    <p>Harjoitteet ovat yksi Acornin tärkeimpiä elementtejä ja minä olin täysin vastuussa niiden toiminnallisuudesta. Tässä kappalessa avaan harjoitteiden toteutustapaa- ja prosessia.</p>
+
+    <h4 class="title is-4">tensorflow</h4>
+    <p>Toteutusta aloittaessa minulla ei ollut minkäännäköistä käsitystä siitä, kuinka äänitunnistusta pitäisi alkaa rakentaa. Tensorflow tuntui järkevältä ratkaisulta, mutta tässäkin tuli vastaan ongelma, että kuinka
+      äänimalleja on helppo luoda. Onnekseni törmäsin Teachable Machineen, joka on yksinkertainen käyttöliittymä kuva- ja äänimallien luomiseen.
+    </p>
+
+    <div class="columns">
+      <div class="column">
+        <img src="/media/tensorflow1.png" >
+        
+
+      </div>
+      <div class="column">
+        <p>
+          Teachable Machineen nauhoitetaan haluttu määrä sampleja per luokka ja se luo automaattisesti niistä Tensorflow-mallin. Demossa on käytetty Tensorflowin 
+          puheentunnistus-toiminnallisuutta, sillä sen sai tunnistamaan tarpeellisella tarkkuudella myös kitaran ääntä. Jatkokehitystä ajatellen sovellukseen olisi
+          hyvä rakentaa alusta asti täysin oma malli. Teachable Machinella on jaossa oma koodinpätkä, jonka avulla sain mallin toimimaan Angular-sovelluksessa miltein vaivattomasti.
+
+        </p>
+
+
+      </div>
+
+
+    </div>
+
+    <!-- Tab links -->
+<div class="tab">
+  <button class="tablinks" onclick="openTab(event, 'practice.component.ts')" id="defaultOpen">practice.component.ts</button>
+  <button class="tablinks" onclick="openTab(event, 'Paris')">Paris</button>
+  <button class="tablinks" onclick="openTab(event, 'Tokyo')">Tokyo</button>
+</div>
+
+<!-- Tab content -->
+<div id="practice.component.ts" class="tabcontent">
+  <pre><code class="language-typescript">  async createModel() {
+    // alustaa äänimallin
+    this.setModel();
+    const checkpointURL = this.model + 'model.json'; // model topology
+    const metadataURL = this.model + 'metadata.json'; // model metadata
+
+    const recognizer = speechCommands.create(
+      'BROWSER_FFT', // fourier transform type, not useful to change
+      undefined, // speech commands vocabulary feature, not useful for your models
+      checkpointURL,
+      metadataURL
+    );
+
+    // check that model and metadata are loaded via HTTPS requests.
+    await recognizer.ensureModelLoaded();
+    return recognizer;
+  }
+
+  async init() {
+    //ilmoitetaan komponentille että harjoitus alkaa
+    this.started = true;
+    this.practicing = true;
+    this.pickOneFeedbackIndex();
+    const recognizer = await this.createModel();
+    const classLabels = recognizer.wordLabels(); // get class labels
+
+    //aloittaa kuuntelun
+    recognizer.listen(
+      async (result) => {
+        const scores = result.scores; //ottaa AI-mallista kuunnellessa eri classien todennäköisyydet taulukkoon talteen
+
+
+        console.log(classLabels[this.target]);
+        console.log(classLabels[0]);
+        console.log(scores[this.target]);
+
+        //jos harjoite menee oikein siirrytään seuraavaan
+        if (scores[this.target] > this.confidence) {
+
+          
+          console.log('oikein :d');
+          //confidence nostetaan hetkittäisesti korkealle jotta ääniefekti ei looppaa toistuvista oikeista vastauksista
+          this.confidence = 1.1;
+          this.playAudio(this.correctAudio);
+          this.penalty = false;
+          this.correct = true;
+          await this.delay(2500);
+          this.nextPractice();
+        }
+
+        if (scores[this.target] < this.confidence && scores[0] < 0.1) {
+          console.log("viärä vastaus");
+          this.wrongSignals++;
+          console.log("wrongSignals " + this.wrongSignals);
+          if (this.wrongSignals === 5) {
+            this.wrongSignals = 0;
+            this.penalties++;
+            console.log("penaalit" + this.penalties);
+            this.penalty = true;
+          }
+
+        }
+
+        //tarkistetaan onko harjoitteita suoritettu enemmän, kuin niitä on
+        if (this.completed === this.practices.length) {
+          //this.practicing = false; 
+          this.finished = true;
+          let currency = this.user.currency + this.messageService.tutorial.reward;
+          this.userService.updateCurrency(this.user, currency).subscribe();
+          let expPenalty = this.penalties * 3;
+          this.trueExp = this.messageService.tutorial.rewardxp - expPenalty;
+          this.updateUserExperience(this.user, this.trueExp);
+          if (this.user.experience + this.messageService.tutorial.rewardxp > 50) {
+            this.levelup = true;
+          }
+          recognizer.stopListening();
+          console.log('init() ' + this.practices);
+        }
+      },
+      {
+        includeSpectrogram: true, // in case listen should return result.spectrogram
+        probabilityThreshold: 0.75,
+        invokeCallbackOnNoiseAndUnknown: true,
+        overlapFactor: 0.5, // probably want between 0.5 and 0.75. More info in README
+      }
+    );
+
+    // Stop the recognition in 5 seconds.
+    // setTimeout(() => recognizer.stopListening(), 5000);</code></pre>
+</div>
+
+<div id="Paris" class="tabcontent">
+  <h3>Paris</h3>
+  <p>Paris is the capital of France.</p>
+</div>
+
+<div id="Tokyo" class="tabcontent">
+  <h3>Tokyo</h3>
+  <p>Tokyo is the capital of Japan.</p>
+</div>
+
+
+
     -kerro toimintalogiikasta <br/>
     -mainitse myös backend <br/>
     -ongelmat äänimallien nauhoituksessa <br/>
@@ -185,6 +325,10 @@
     &copy; Topi Ikonen
   </div>
 </footer>
-<script src="prism.js"></script>
+<script src="./js/prism.js"></script>
+<script src="./js/scripts.js"></script>
+<script>
+  document.getElementById("defaultOpen").click();
+  </script>
 </body>
 </html>
