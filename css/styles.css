@@ -111,6 +111,7 @@ iframe {
 }
 
 .tech-title {
+    margin-top:2em;
     max-width:50%;
     margin-left:25%;
     text-align: center;
