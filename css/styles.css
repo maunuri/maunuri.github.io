@@ -58,16 +58,13 @@ html {
     color:black;
 }
 
-.subtitle {
+.subtitle.is-4 {
     margin:auto;
     color:white;
     width:66%;
     margin-top:2em;
     letter-spacing: 5px;
 }
-
-
-
 
 .content {
     width:60%;
@@ -98,4 +95,23 @@ p {
 iframe {
     margin:auto;
     margin-top:1em;
+}
+
+.tech-img-container {
+    height:150px;
+}
+.tech {
+    width:50%;
+    margin-left:25%;
+    top:0px;
+}
+
+.tech.wide {
+    margin-top:50px;
+}
+
+.tech-title {
+    max-width:50%;
+    margin-left:25%;
+    text-align: center;
 }
