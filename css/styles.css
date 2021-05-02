@@ -93,7 +93,8 @@ p {
 }
 
 .language-typescript {
-    max-height:400px;
+    min-height:700px;
+    max-height:700px;
 }
 
 iframe {
@@ -126,12 +127,13 @@ iframe {
     overflow: hidden;
     border: 1px solid #ccc;
     border-radius:4px;
-    background-color: #f1f1f1;
+    background-image: linear-gradient(250deg, #290629 0%, #000f0f 100%);
   }
   
   /* Style the buttons that are used to open the tab content */
   .tab button {
     background-color: inherit;
+    color:white;
     float: left;
     border: none;
     outline: none;
@@ -142,12 +144,12 @@ iframe {
   
   /* Change background color of buttons on hover */
   .tab button:hover {
-    background-color: #ddd;
+    background-color: #8A4D76;
   }
   
   /* Create an active/current tablink class */
   .tab button.active {
-    background-color: #ccc;
+    background-color: #8A4D76;
   }
   
   /* Style the tab content */
@@ -166,4 +168,17 @@ iframe {
   @keyframes fadeEffect {
     from {opacity: 0;}
     to {opacity: 1;}
+  }
+
+  .tabinfo {
+      margin-left:1em;
+  }
+
+  .zoom {
+    transition: transform .2s; /* Animation */
+    margin: 0 auto;
+  }
+  
+  .zoom:hover {
+    transform: scale(1.7); /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
   }
