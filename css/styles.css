@@ -97,6 +97,11 @@ p {
     max-height:700px;
 }
 
+.language-html {
+    min-height:700px;
+    max-height:700px;
+}
+
 iframe {
     margin:auto;
     margin-top:1em;
