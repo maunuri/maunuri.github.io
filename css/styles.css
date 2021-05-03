@@ -207,6 +207,15 @@ iframe {
     transform: scale(1.7); /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
   }
 
+  .zoom2 {
+    transition: transform .2s; /* Animation */
+    margin: 0 auto;
+  }
+  
+  .zoom2:hover {
+    transform: scale(2.5); /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
+  }
+
   .viteo {
       width:50%;
       margin:auto;
@@ -214,4 +223,16 @@ iframe {
 
   .block {
       margin-top:40px;
+      transition: 0.2s;
+      border-radius:6px;
+      padding:1em;
+  }
+
+  .block:hover {
+      background-color: #EFF0EB;
+      box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .po_img {
+      margin-top:2em;
   }
