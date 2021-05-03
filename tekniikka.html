@@ -505,22 +505,29 @@ module.exports = practicecontroller;
 
       <ul>
         <li>Tensorflow-mallien kouluttaminen</li>
-        <li>Äänitunnistuksen implementointi Angular-sovellukseen</li>
+        <li>Äänitunnistuksen implementointi Angular-sovellukseen, näillä opeilla osaisin tehdä yksinkertaisen puheentunnistuksella toimivan sovelluksen</li>
+        <li>Tiedon varastointi serviceen, jotta sitä voidaan käyttää toisessa komponentissa</li>
         <li>Tietueiden hakeminen tietokannasta sovelluksessa käyttöä varten</li>
-        <li>Sequelize.js:n perustoiminnallisuus</li>
+        <li>Sequelize.js:n perustoiminnallisuus, eli kuinka luoda mallit, reititys sekä yksinkertainen find-query</li>
+        <li>Kommentoinnin tärkeys, ensimmäisen pushin jälkeen kellään muulla tiimin jäsenelläei ollut mitään hajua mitä komponentti teki,
+          joten lisäsin kattavat kommentit jälkikäteen</li>
       </ul>
     </div>
 
     <div class="block">
       <h3 class="title is-3">inventaario ja esineiden käyttöönotto</h3>
 
+      <p>Tärkeänä osana sovelluksen visiota oli myös maskottien kustomointi tukemaan pelillisiä ominaisuuksia ja antamaan käyttäjälle konkreettisia
+        palkintoja kitaransoiton harjoittelusta. Tässä toteutuksessa opin läksyni siitä, että kuinka tärkeää on kuljettaa ja käsitellä dataa Angularin serviceissä,
+        sen sijaan että niitä käsiteltäisiin komponenteissa.
+      </p>
       
       <h4 class="title is-4">toteutus</h4>
 
-<p>Tärkeänä osana sovelluksen visiota oli myös maskottien kustomointi tukemaan pelillisiä ominaisuuksia ja antamaan käyttäjälle konkreettisia
-  palkintoja kitaransoiton harjoittelusta. Tässä toteutuksessa opin läksyni siitä, että kuinka tärkeää on kuljettaa ja käsitellä dataa Angularin serviceissä,
-  sen sijaan että niitä käsiteltäisiin komponenteissa.
-</p>
+      <p>
+        Inventaarion hakeminen sovelluksen frontendiin toteutettiin serviceiden ja backendin avulla. Tässä vaiheessa toteutusta siirryimme ratkaisumalliin,
+        jossa siirsimme 
+      </p>
 
       <div class="tab">
         <button class="tablinks1" onclick="openTab1(event, 'itemcontroller')"
@@ -584,9 +591,8 @@ buyItem: (req,res) => {
       <div id="itemmenuservice" class="tabcontent2">
         <p class="tabinfo">Tärkeimmät funktiot, joilla käsitellään inventaariota. Funktioilla iteroidaan kaikki esineet läpi ja tarkistetaan, kuuluvatko ne
           kirjautuneen käyttäjän kohdalla käyttäjän tavaravalikkoon vai kauppaan. Samalla tarkistetaan onko käyttäjällä varaa ostaa kaupasta esine, jota hän ei 
-          vielä omista. Tässä komponentissa jouduin tekemään paljon muutoksia,
-          sillä alun alkaen tämä oli komponentti käsitteli kaiken esineisiin liittyvän datan, mutta siinä tuli todella paljon ongelmia, eikä esineiden tietoihin päässyt käsiksi
-          muualta kuin inventaariosta. Siirsin siis kaiken esineiden käsittelyyn liittyvän toimintalogiikan
+          vielä omista. Tämän servicen toiminnallisuus oli alunperin täysin inventaarion komponentissa ja tästä seurasi ongelma, että esineiden tietoja ei voitu 
+          käsitellä muissa komponenteissa. Tästä opimme koko ryhmän kesken, että Angularissa miltei kaikki käsiteltävä tieto on hyvä säilyttää serviceiden luokkamuuttujissa.
           
         </p>
         <pre>
@@ -823,10 +829,12 @@ async findAllItemMedia() {
     <h4 class="title is-4">mitä jäi käteen?</h4>
 
     <ul>
-      <li>Tensorflow-mallien kouluttaminen</li>
-      <li>Äänitunnistuksen implementointi Angular-sovellukseen</li>
-      <li>Tietueiden hakeminen tietokannasta sovelluksessa käyttöä varten</li>
-      <li>Sequelize.js:n perustoiminnallisuus</li>
+      <li>Serviceiden tärkeyden oppiminen, tästä eteenpäin käsittelen kaiken tiedon serviceissä, jos on pienikään mahdollisuus, että sitä tietoa voi tarvita muualla</li>
+      <li>Syvempää Sequelizen käyttöä, ei pelkästään find()-funktiota</li>
+      <li>Tietokantapyynnöissä parametrien varastointi pyynnön bodyyn eikä osoitteeseen. Näin vältytään siltä,
+        että epäurheilijamaiset kitaristit eivät grindaa sovelluksessa kokemuspisteitä http-pyynnöillä</li>
+      <li>Angularin ngIf ja ngFor-lauseiden monipuolinen käyttö</li>
+      <li>Kaikki etapit, mitä tiedolla on matkalla tietokannasta sovelluksen frontendiin</li>
     </ul>
 
 
