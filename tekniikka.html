@@ -514,6 +514,13 @@ module.exports = practicecontroller;
     <div class="block">
       <h3 class="title is-3">inventaario ja esineiden käyttöönotto</h3>
 
+      
+      <h4 class="title is-4">toteutus</h4>
+
+<p>Tärkeänä osana sovelluksen visiota oli myös maskottien kustomointi tukemaan pelillisiä ominaisuuksia ja antamaan käyttäjälle konkreettisia
+  palkintoja kitaransoiton harjoittelusta. Tässä toteutuksessa opin läksyni siitä, että kuinka tärkeää on kuljettaa ja käsitellä dataa Angularin serviceissä,
+  sen sijaan että niitä käsiteltäisiin komponenteissa.
+</p>
 
       <div class="tab">
         <button class="tablinks1" onclick="openTab1(event, 'itemcontroller')"
@@ -529,9 +536,11 @@ module.exports = practicecontroller;
 
       <!-- Tab content -->
       <div id="itemcontroller" class="tabcontent2">
-        <p class="tabinfo">Backendissä sijaitseva funktio, joka luo uuden käyttäjän rekisteröitymisen yhteydessä userItem-tauluun tietueita.
+        <p class="tabinfo">createUserItem() on backendissä sijaitseva funktio, joka luo uuden käyttäjän rekisteröitymisen yhteydessä userItem-tauluun tietueita.
           Kyseistä taulua käytetään sen tarkistamiseen, että mitä esineitä kukin käyttäjä omistaa ja mitkä esineet kummallakin maskotilla on käytössä tällä hetkellä.
-          <br/>Esineen ja käyttäjän id tulevat omista tauluistaan vierasavaimina.
+          Esineen ja käyttäjän id tulevat omista tauluistaan vierasavaimina.<br/><br/>
+          BuyItem()-funktio ottaa parametreinä kirjautuneen käyttäjän ja kaupassa valitun esineen id:t ja asettaa userItem-taulussa kyseisten tietojen perusteella
+          esineen käyttäjän omistamaksi.
         </p>
 <pre><code class="language-typescript">createUserItem: (req, res) => {
   UserItem.findOrCreate({
@@ -555,11 +564,31 @@ module.exports = practicecontroller;
   });
 
 },
+
+//metodi, joka vaihtaa halutun esineen omistajuuden
+buyItem: (req,res) => {
+    UserItem.update({ owned: 1 }, {
+        where: {
+            userid: req.body.userid,
+            item: req.body.item
+        }
+        }).then(() => {
+            res.json('You bought an item');
+        }).catch((err) => {
+            console.log(err);
+        });
+},
   </code></pre>
       </div>
 
       <div id="itemmenuservice" class="tabcontent2">
-        <p class="tabinfo">Tärkeimmät funktiot, joilla käsitellään inventaariota.</p>
+        <p class="tabinfo">Tärkeimmät funktiot, joilla käsitellään inventaariota. Funktioilla iteroidaan kaikki esineet läpi ja tarkistetaan, kuuluvatko ne
+          kirjautuneen käyttäjän kohdalla käyttäjän tavaravalikkoon vai kauppaan. Samalla tarkistetaan onko käyttäjällä varaa ostaa kaupasta esine, jota hän ei 
+          vielä omista. Tässä komponentissa jouduin tekemään paljon muutoksia,
+          sillä alun alkaen tämä oli komponentti käsitteli kaiken esineisiin liittyvän datan, mutta siinä tuli todella paljon ongelmia, eikä esineiden tietoihin päässyt käsiksi
+          muualta kuin inventaariosta. Siirsin siis kaiken esineiden käsittelyyn liittyvän toimintalogiikan
+          
+        </p>
         <pre>
 <code class="language-typescript">//iteroidaan läpi omistetut tavarat ja tulostetaan ne kauppaan
 setOwnedItems(): void {
@@ -636,7 +665,8 @@ buyItem(user: number, item: Itemdatatype): Observable<Useritemdatatype> {
       </div>
 
       <div id="inventorycomponent" class="tabcontent2">
-        <p class="tabinfo">pyly
+        <p class="tabinfo">Inventaarikomponentin HTML-tiedoston tärkeimmät osat. Komponentissa iteroidaan läpi Angularin omilla funktioilla
+          itemMenuServicessä kerättyjen tietojen perusteella esineet joko kauppaan tai käyttäjän inventaarioon.
         </p>
         <pre>
 <code class="language-html">&lt;mat-card-subtitle> Gear </mat-card-subtitle>
@@ -784,21 +814,22 @@ async findAllItemMedia() {
 
         </code>
       </pre>
-    </div>
+      
 
-    <div class="block">
-      <h4 class="title">muut tekniset tehtävät</h4>
-      -muiden ryhmäläisten auttaminen teknisissä tehtävissä <br />
-      -muiden opastaminen angularin kanssa <br />
-      -tietokanta <br/>
-    </div>
 
-    <div class="block">
-      <h4 class="title">asiat joita jäi käteen</h4>
-      -angular-sovelluksen toiminnan hahmottaminen<br />
-      -fullstack-sovelluksen toiminnan hahmottaminen <br />
 
     </div>
+
+    <h4 class="title is-4">mitä jäi käteen?</h4>
+
+    <ul>
+      <li>Tensorflow-mallien kouluttaminen</li>
+      <li>Äänitunnistuksen implementointi Angular-sovellukseen</li>
+      <li>Tietueiden hakeminen tietokannasta sovelluksessa käyttöä varten</li>
+      <li>Sequelize.js:n perustoiminnallisuus</li>
+    </ul>
+
+
 
   </div>
 
