@@ -153,17 +153,33 @@ iframe {
   }
   
   /* Style the tab content */
-  .tabcontent {
+  .tabcontent1 {
     display: none;
     padding: 6px 12px;
     border: 1px solid #ccc;
     border-top: none;
   }
 
-  .tabcontent {
+  .tabcontent1 {
     animation: fadeEffect 1s; /* Fading effect takes 1 second */
   }
   
+  /* Style the tab content */
+  .tabcontent2 {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+  }
+
+  .tabcontent2 {
+    animation: fadeEffect 1s; /* Fading effect takes 1 second */
+  }
+
+  #defaultOpen1 {
+      display: block;
+  }
+
   /* Go from zero to full opacity */
   @keyframes fadeEffect {
     from {opacity: 0;}
@@ -181,4 +197,8 @@ iframe {
   
   .zoom:hover {
     transform: scale(1.7); /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
+  }
+
+  .block {
+      margin-top:40px;
   }

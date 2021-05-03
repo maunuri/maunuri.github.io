@@ -176,70 +176,101 @@
             puheentunnistus-toiminnallisuutta, sillä sen sai tunnistamaan tarpeellisella tarkkuudella myös kitaran
             ääntä. Jatkokehitystä ajatellen sovellukseen olisi
             hyvä rakentaa alusta asti täysin oma malli. Teachable Machinella on jaossa oma koodinpätkä, jonka avulla
-            sain mallin toimimaan Angular-sovelluksessa miltein vaivattomasti.
-
+            sain mallin toimimaan Angular-sovelluksessa miltein vaivattomasti. <br/>
           </p>
-
-
         </div>
+
+
 
 
       </div>
 
+      <p>
+        Sovelluksen demoa varten toteutin harjoitteen, jossa käyttäjän tulee soittaa kitaran jokaista kieltä. Äänitin
+        kuvan mukaisesti jokaista kieltä 40 samplea, jotta Teachable Machine saa tarpeeksi materiaalia mallin tekemiseen.
+        Äänitin mallin nylonkielisellä kitaralla, joten tästä seurasi se, että sovelluksen äänitunnistus toimii vain vastaavanlaisella kitaralla.
+        Samplet oli myös äänitetty yhteen putkeen, jolloin mukana oli paljon ylimääräistä ääntä, mikä puolestaan vaikutti hyvin paljon tunnistuksen epätarkkuuteen.
+        <br/><br/>
+        Jatkossa aion luoda äänimallit sovellukseen siten, että nauhoitan jokaisen luokan samplet sähkökitaralla, teräskielisellä ja nylonkielisellä akustisella kitaralla,
+        joka auttaa Tensorflowia tunnistamaan varsinaista sävelkorkeutta, eikä niinkään vaan kitaran ääntä. Lisätarkkuuden tuomiseksi voidaan myös soittaa asiat erikseen sormin ja plektralla,
+        koska huomasin myös tämän vaikuttavan tunnistuksen tarkkuuteen.
+        
+
+      </p>
 
       <h4 class="title is-4">käytännön toteutus</h4>
 
+      <p>Sovelluksen harjoitteet toimivat lyhykäisyydessään seuraavalla tavalla:</p>
+      <ol>
+        <li>Otetaan talteen tutoriaalin id tietokannasta hakua varten</li>
+        <li>Haetaan tietokannasta halutut harjoitteet tutoriaalin id:n perusteella</li>
+        <li>setModel()-metodi asettaa harjoite-oliot omaan taulukkoonsa ja tällä on kaverina kaksi aputaulukkoa, practiceModels, johon tallennetaan tensorimallit ja practiceConfidence, johon tallennetaan
+          kunkin harjoitteen haluttu tarkkuus.
+        </li>
+        <li>createModel()-metodi ajaa ensin setModel()-metodin, jotta saadaan ladattua pilvipalvelusta haluttu tensorimalli äänitunnistusta varten</li>
+        <li>Lopulta äänitunnistus käynnistetään init()-metodilla, joka toimii seuraavasti
+          <ol type="I">
+            <li>Otetaan scores[]-taulukkoon talteen äänitunnistuksen palauttamat tulokset</li>
+            <li>Verrattaan sitä practiceConfidence-muuttujassa olevaan, nykyistä harjoitetta vastaavaan haluttuun tarkkuuteen</li>
+            <li>Jos scores[]-taulukon tulos on nykyisen harjoitteen kohdalla suurempi, kuin haluttu tarkkuus, käyttäjä pääsee harjoitteen läpi ja hänet ohjataan seuraavaan harjoitteeseen nextPractice()-metodilla</li>
+            <li>Mikäli tulos on vähemmän, käyttäjälle tallennetaan virhemerkintä ylös ja viidestä virhemerkinnästä samassa harjoitteessa käyttäjä saa kolmen kokemuspisteen miinuksen lopullisesta palkkiosta</li>
+            <li>Kaikkien harjoitteiden suorittamisen jälkeen käyttäjä ohjataan tulosruutuun, jossa näkyy saatu kokemuspistepalkkio ja ilmoitetaan, jos käyttäjä pääsee uudelle tasolle</li>
+          </ol>
+        </li>
+        <li>Käyttäjä ohjataan takaisin tutoriaalivalikkoon</li>
+      </ol>
 
       <!-- Tab links -->
       <div class="tab">
-        <button class="tablinks" onclick="openTab(event, 'practice.service.ts', 'tabcontent1')"
+        <button class="tablinks" onclick="openTab(event, 'practice.service.ts')"
           id="defaultOpen">practice.service.ts</button>
-        <button class="tablinks" onclick="openTab(event, 'Practice.js', 'tabcontent1')">Practice.js</button>
+        <button class="tablinks" onclick="openTab(event, 'Practice.js')">Practice.js</button>
         <button class="tablinks"
-          onclick="openTab(event, 'practicecontroller.js', 'tabcontent1')">practicecontroller.js</button>
+          onclick="openTab(event, 'practicecontroller.js')">practicecontroller.js</button>
         <button class="tablinks"
-          onclick="openTab(event, 'practice.component.ts', 'tabcontent1')">practice.component.ts</button>
+          onclick="openTab(event, 'practice.component.ts')">practice.component.ts</button>
       </div>
 
       <!-- Tab content -->
       <div id="practice.service.ts" class="tabcontent1">
         <p class="tabinfo">Service, jolla haetaan valitun tutoriaalin perusteella kyseisen tutoriaalin harjoitteet
-          tietokannasta</p>
-        <pre><code class="language-typescript">
-    export class PracticeService {
-      private practicesUrl = 'http://localhost:3000/tutorials/practices/';
-      practices: Array<Practicedatatype> = [];
-      tutorial: number;
+          tietokannasta. Tutoriaalin id on tallennettu tutoriaalivalikossa messageServicen luokkamuuttujaan. Tässä vaiheessa en ollut vielä hirveän paneutunut
+          Angularin serviceihin ja tämän tiedon olisi aivan hyvin voinut tallentaa myös practiceServiceen aikaisemmassa valintaruudussa.</p>
+<pre><code class="language-typescript">export class PracticeService {
+  private practicesUrl = 'http://localhost:3000/tutorials/practices/';
+  practices: Array<Practicedatatype> = [];
+  tutorial: number;
+
+  // Virheenkäsittely
+  private handleError(error: any): Observable<any> {
+    console.error('An error occurred', error);
+    return (error.message || error);
+  }
+
+  // Metodi, jolla haetaan kannasta halutut practicet klikatun tutoriaalivalikon itemin perusteella
+  // input-muuttuja on tutorial-olion id
+  getPractices(input): Observable<Practicedatatype[]> {
+    this.tutorial = input
+    console.log(this.tutorial + " t service");
     
-      // Virheenkäsittely
-      private handleError(error: any): Observable<any> {
-        console.error('An error occurred', error);
-        return (error.message || error);
-      }
-    
-      // Metodi, jolla haetaan kannasta halutut practicet klikatun tutoriaalivalikon itemin perusteella
-      // input-muuttuja on tutorial-olion id
-      getPractices(input): Observable<Practicedatatype[]> {
-        this.tutorial = input
-        console.log(this.tutorial + " t service");
-        
-        return this.http.get<Practicedatatype[]>(this.practicesUrl + this.tutorial)
-          .pipe(
-            catchError(this.handleError)
-        );
-      }
-    
-    
-      constructor(private http: HttpClient) { }
-    }
-  </code></pre>
+    return this.http.get<Practicedatatype[]>(this.practicesUrl + this.tutorial)
+      .pipe(
+        catchError(this.handleError)
+    );
+  }
+
+
+  constructor(private http: HttpClient) { }
+}
+</code></pre>
       </div>
 
       <div id="Practice.js" class="tabcontent1">
-        <p class="tabinfo">Backendissä sijaitseva Practice-olioiden tietotyypin alustusfunktio</p>
+        <p class="tabinfo">Backendissä sijaitseva Practice-olioiden tietotyypin alustusfunktio. Kuhunkin harjoitteeseen on tallennettu paljon relevanttia infoa,
+          oleellisimpana nimi, tutoriaalisarja johon harjoite kuuluu, harjoitteen luokka, harjoitemallin url ja media, joka harjoitenäkymässä näytetään käyttäjälle.
+        </p>
         <pre>
-    <code class="language-typescript">
-const { Sequelize, DataTypes } = require('sequelize');
+<code class="language-typescript">const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../dbconnection');
 
 const Practice = sequelize.define('Practice', {
@@ -290,9 +321,7 @@ module.exports = Practice;
           harjoitteet, eikä kerralla kaikkia.
         </p>
         <pre>
-  <code class="language-typescript">
-
-const Practice = require('../models/Practice');
+<code class="language-typescript">const Practice = require('../models/Practice');
 
 const practicecontroller = {
     findAll: (req, res) => {
@@ -310,257 +339,299 @@ module.exports = practicecontroller;
       </div>
 
       <div id="practice.component.ts" class="tabcontent1">
-        <p class="tabinfo">Frontend-luokka, joka hoitaa kaiken toiminnallisuuden harjotteista.</p>
-        <pre><code class="language-typescript">
-          export class PracticeComponent implements OnInit {
-            model: string; // tähän ominaisuuteen tallennetaan haluttu AI-malli
-            tutorial: number; // tähän ominaisuuteen kirjataan ylös mikä harjoitesarja on kyseessä
-            target: number = 0; // tätä käytetään oikean luokan valitsemiseen koneoppimismallista
-            practiceModels: number[]; // tällä tarkistetaan missä kohdin ollaan menossa practices-arrayssä
-            practiceConfidence: number[]; // tällä seurataan harjoitteiden confidencea
-            current: number = 0; // tällä tarkistetaan missä kohdin ollaan menossa practiceModels-arrayssä
-            correct: boolean = false; // tällä tarkistetaan onko harjoite mennyt oikein
-            started: boolean = false; // tällä tarkistetaan onko harjoitus aloitettu
-            practicing: boolean = false; // tällä tarkistetaan onko harjoitus käynnissä
-            finished: boolean = false; // tällä tarkistetaan onko harjoitus loppu
-            practices: Practicedatatype[]; //tähän haetaan tietokannasta harjoitteet
-            completed: number = 0; //tämä pitää kirjaa suoritetuista harjotteista
-            confidence: number = 0.5; //tämä määrittää kuinka suurella prosentilla sisääntulevan äänen täytyy täsmätä malliin
-            correctAudio: string = '../../assets/audio/acorn_correct.wav'; //ääniefekti oikealle vastaukselle
-            user: Userdatatype;
-            levelup: boolean = false;
-            feedbackList: Feedbackdatatype[];
-            randomFeedbackIndex: number;
-            private wrongSignals: number = 0; //väärien signaalien määrä, viidestä tulee penalty
-            private penalties: number = 0; //penaltyjen määrä, jokaisesta kaksi expaa pois
-            public trueExp: number; //lopullinen expa mikä annetaan käyttäjälle
-            public penalty: boolean; //ilmoittaa käyttäjälle jos tulee penalty
+        <p class="tabinfo">Frontend-luokka, joka hoitaa kaiken toiminnallisuuden harjotteista. Tärkeimmät metodit ovat setMode(), createModel() ja init().
+          Näistä jälkimmäiset kaksi ovat alunperin Teachable Machinen omia koodisnippettejä puheentunnistuksen helppoon käyttöönottoon,
+          mutta niitä on muokkailtu hieman sovelluksen käyttötarkoituksiin sopivimmiksi.
+        </p>
+<pre><code class="language-typescript">export class PracticeComponent implements OnInit {
+  model: string; // tähän ominaisuuteen tallennetaan haluttu AI-malli
+  tutorial: number; // tähän ominaisuuteen kirjataan ylös mikä harjoitesarja on kyseessä
+  target: number = 0; // tätä käytetään oikean luokan valitsemiseen koneoppimismallista
+  practiceModels: number[]; // tällä tarkistetaan missä kohdin ollaan menossa practices-arrayssä
+  practiceConfidence: number[]; // tällä seurataan harjoitteiden confidencea
+  current: number = 0; // tällä tarkistetaan missä kohdin ollaan menossa practiceModels-arrayssä
+  correct: boolean = false; // tällä tarkistetaan onko harjoite mennyt oikein
+  started: boolean = false; // tällä tarkistetaan onko harjoitus aloitettu
+  practicing: boolean = false; // tällä tarkistetaan onko harjoitus käynnissä
+  finished: boolean = false; // tällä tarkistetaan onko harjoitus loppu
+  practices: Practicedatatype[]; //tähän haetaan tietokannasta harjoitteet
+  completed: number = 0; //tämä pitää kirjaa suoritetuista harjotteista
+  confidence: number = 0.5; //tämä määrittää kuinka suurella prosentilla sisääntulevan äänen täytyy täsmätä malliin
+  correctAudio: string = '../../assets/audio/acorn_correct.wav'; //ääniefekti oikealle vastaukselle
+  user: Userdatatype;
+  levelup: boolean = false;
+  feedbackList: Feedbackdatatype[];
+  randomFeedbackIndex: number;
+  private wrongSignals: number = 0; //väärien signaalien määrä, viidestä tulee penalty
+  private penalties: number = 0; //penaltyjen määrä, jokaisesta kaksi expaa pois
+  public trueExp: number; //lopullinen expa mikä annetaan käyttäjälle
+  public penalty: boolean; //ilmoittaa käyttäjälle jos tulee penalty
+
+  //BUGIT
+  //äänitunnistus jää päälle jos komponentista siirrytään pois kesken harjoitteen
+  
+
+  constructor(
+    private practiceService: PracticeService,
+    public messageService: MessageService,
+    public userService: UserService,
+    public progressionService: ProgressionService,
+    public authService: AuthService,
+    public equipService: EquipService
+  ) {}
+
+  async ngOnInit() {
+    await this.getPractices();
+    this.getFeedback();
+    this.getUser();
+    await this.delay(2500);
+    this.init();
+  }
+
+  //hakee practicet tietokannasta
+  getPractices(): void {
+    this.practiceService
+      .getPractices(this.messageService.tutorial.tutorial)
+      .subscribe((practices) => (this.practices = practices));
+  }
+
+    // Hakee userServicen kautta tietokannasta käyttäjäolion ja sijoittaa sen user-olioon.
+  getUser(): void {
+    const userid = parseInt(sessionStorage.getItem('userid'));
+    console.log(userid);
+    this.userService.getUser(userid)
+      .subscribe(user => this.user = user);
+    
+  }
+
+    // ProgressionServicen välityksellä päivittää käyttäjän expat, ottaa arvoiksi halutun käyttäjän ja annetut expat
+  updateUserExperience(user, experienceReward): void {
+    this.progressionService.updateExperience(user, experienceReward)
+      .subscribe((users) => this.user);
+  }
+
+  // Haetaan feedbackList- tauluun kannasta kaikki kehut
+  getFeedback(): void {
+    this.messageService.getAllFeedback()
+      .subscribe((feedback) => this.feedbackList = feedback);
+  }
+
+  // Arvotaan random numero, jota käytetään feedbackListin yhteydessä indexinumerona jotta saadaan yksi satunnainen kehu
+  pickOneFeedbackIndex(): void {
+    let random = Math.floor(Math.random() * this.feedbackList.length);
+    this.randomFeedbackIndex = random;
+  }
+
+  // asettaa halutun oppimismallin äänitunnistukselle
+  setModel() {
+    this.tutorial = this.messageService.tutorial.tutorial;
+    console.log(this.tutorial + " terv setModel() ennen looppia")
+
+  //alustetaan apumuuttuja, johon haetaan harjoitteet
+    let practiceSet = [];
+  //alustetaan apumuuttuja, joka johon haetaan AI:n mallin classi
+    let practiceModels = [];
+
+    let practiceConfidence = [];
+  //iteroidaan tietokannasta haetut harjoitteet läpi
+    for (let i = 0; i < this.practices.length; i++) {
+        //pusketaan ne practiceSet-muuttujaan
+        practiceSet.push(this.practices[i]);
+        console.log(JSON.stringify(this.practices[i]) + " terveisin forloop")
+        //pusketaan mallien luokat practiceModels-muuttujaan
+        practiceModels.push(this.practices[i].modelclass);
+        //pusketaan mallien tarkkuudet practiceConfidenceen
+        practiceConfidence.push(this.practices[i].confidence);
+        }
+    
+    //asetetaan apumuuttujat luokkamuuttujiin
+    this.practices = practiceSet;
+    console.log("setModel() " + this.practices);
+    this.practiceModels = practiceModels;
+    console.log("practicemodelit " + this.practiceModels );
+    this.practiceConfidence = practiceConfidence;
+    console.log("practiceConfidencet " + practiceConfidence);
+    this.target = this.practiceModels[this.current];
+    console.log("target " + this.target);
+    this.confidence = this.practiceConfidence[this.current];
+
+    //asetetaan koneppismismalli, jota kyseisessä harjoitteessa käytetään
+    this.model = this.practices[0].model;
+  }
+
+  playAudio(src) {
+    let audio = new Audio(src);
+    console.log(audio);
+    audio.play();
+  }
+
+  //tällä voidaan automaattisesti triggeroida nextPractice() tietyn ajan jälkeen
+  private delay(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  nextPractice() {
+    // nappia painamalla siirrytään seuraavaan harjoitteeseen
+    this.correct = false;
+    this.penalty = false;
+    this.wrongSignals = 0;
+    console.log("target ennen currenttia" + this.target);
+    
+    this.completed++;
+    this.pickOneFeedbackIndex();
+    
+    //siirrytään seuraavaan harjoitteeseen
+    this.current++;
+    this.target = this.practiceModels[this.current];
+    this.confidence = this.practiceConfidence[this.current];
+    console.log("target currentin jälkeen" + this.target);
+
+    console.log(this.practices);
+  }
+
+  async createModel() {
+    // alustaa äänimallin
+    this.setModel();
+    const checkpointURL = this.model + 'model.json'; // model topology
+    const metadataURL = this.model + 'metadata.json'; // model metadata
+
+    const recognizer = speechCommands.create(
+      'BROWSER_FFT', // fourier transform type, not useful to change
+      undefined, // speech commands vocabulary feature, not useful for your models
+      checkpointURL,
+      metadataURL
+    );
+
+    // check that model and metadata are loaded via HTTPS requests.
+    await recognizer.ensureModelLoaded();
+    return recognizer;
+  }
+
+  async init() {
+    //ilmoitetaan komponentille että harjoitus alkaa
+    this.started = true;
+    this.practicing = true;
+    this.pickOneFeedbackIndex();
+    const recognizer = await this.createModel();
+    const classLabels = recognizer.wordLabels(); // get class labels
+
+    //aloittaa kuuntelun
+    recognizer.listen(
+      async (result) => {
+        const scores = result.scores; //ottaa AI-mallista kuunnellessa eri classien todennäköisyydet taulukkoon talteen
+
+
+        console.log(classLabels[this.target]);
+        console.log(classLabels[0]);
+        console.log(scores[this.target]);
+
+        //jos harjoite menee oikein siirrytään seuraavaan
+        if (scores[this.target] > this.confidence) {
+
           
-            //BUGIT
-            //äänitunnistus jää päälle jos komponentista siirrytään pois kesken harjoitteen
-            
-          
-            constructor(
-              private practiceService: PracticeService,
-              public messageService: MessageService,
-              public userService: UserService,
-              public progressionService: ProgressionService,
-              public authService: AuthService,
-              public equipService: EquipService
-            ) {}
-          
-            async ngOnInit() {
-              await this.getPractices();
-              this.getFeedback();
-              this.getUser();
-              await this.delay(2500);
-              this.init();
-            }
-          
-            //hakee practicet tietokannasta
-            getPractices(): void {
-              this.practiceService
-                .getPractices(this.messageService.tutorial.tutorial)
-                .subscribe((practices) => (this.practices = practices));
-            }
-          
-              // Hakee userServicen kautta tietokannasta käyttäjäolion ja sijoittaa sen user-olioon.
-            getUser(): void {
-              const userid = parseInt(sessionStorage.getItem('userid'));
-              console.log(userid);
-              this.userService.getUser(userid)
-                .subscribe(user => this.user = user);
-              
-            }
-          
-              // ProgressionServicen välityksellä päivittää käyttäjän expat, ottaa arvoiksi halutun käyttäjän ja annetut expat
-            updateUserExperience(user, experienceReward): void {
-              this.progressionService.updateExperience(user, experienceReward)
-                .subscribe((users) => this.user);
-            }
-          
-            // Haetaan feedbackList- tauluun kannasta kaikki kehut
-            getFeedback(): void {
-              this.messageService.getAllFeedback()
-                .subscribe((feedback) => this.feedbackList = feedback);
-            }
-          
-            // Arvotaan random numero, jota käytetään feedbackListin yhteydessä indexinumerona jotta saadaan yksi satunnainen kehu
-            pickOneFeedbackIndex(): void {
-              let random = Math.floor(Math.random() * this.feedbackList.length);
-              this.randomFeedbackIndex = random;
-            }
-          
-            // asettaa halutun oppimismallin äänitunnistukselle
-            setModel() {
-              this.tutorial = this.messageService.tutorial.tutorial;
-              console.log(this.tutorial + " terv setModel() ennen looppia")
-          
-            //alustetaan apumuuttuja, johon haetaan harjoitteet
-              let practiceSet = [];
-            //alustetaan apumuuttuja, joka johon haetaan AI:n mallin classi
-              let practiceModels = [];
-          
-              let practiceConfidence = [];
-            //iteroidaan tietokannasta haetut harjoitteet läpi
-              for (let i = 0; i < this.practices.length; i++) {
-                  //pusketaan ne practiceSet-muuttujaan
-                  practiceSet.push(this.practices[i]);
-                  console.log(JSON.stringify(this.practices[i]) + " terveisin forloop")
-                  //pusketaan mallien luokat practiceModels-muuttujaan
-                  practiceModels.push(this.practices[i].modelclass);
-                  //pusketaan mallien tarkkuudet practiceConfidenceen
-                  practiceConfidence.push(this.practices[i].confidence);
-                 }
-              
-              //asetetaan apumuuttujat luokkamuuttujiin
-              this.practices = practiceSet;
-              console.log("setModel() " + this.practices);
-              this.practiceModels = practiceModels;
-              console.log("practicemodelit " + this.practiceModels );
-              this.practiceConfidence = practiceConfidence;
-              console.log("practiceConfidencet " + practiceConfidence);
-              this.target = this.practiceModels[this.current];
-              console.log("target " + this.target);
-              this.confidence = this.practiceConfidence[this.current];
-          
-              //asetetaan koneppismismalli, jota kyseisessä harjoitteessa käytetään
-              this.model = this.practices[0].model;
-            }
-          
-            playAudio(src) {
-              let audio = new Audio(src);
-              console.log(audio);
-              audio.play();
-            }
-          
-            //tällä voidaan automaattisesti triggeroida nextPractice() tietyn ajan jälkeen
-            private delay(ms: number) {
-              return new Promise((resolve) => setTimeout(resolve, ms));
-            }
-          
-            nextPractice() {
-              // nappia painamalla siirrytään seuraavaan harjoitteeseen
-              this.correct = false;
-              this.penalty = false;
-              this.wrongSignals = 0;
-              console.log("target ennen currenttia" + this.target);
-              
-              this.completed++;
-              this.pickOneFeedbackIndex();
-              
-              //siirrytään seuraavaan harjoitteeseen
-              this.current++;
-              this.target = this.practiceModels[this.current];
-              this.confidence = this.practiceConfidence[this.current];
-              console.log("target currentin jälkeen" + this.target);
-          
-              console.log(this.practices);
-            }
-          
-            async createModel() {
-              // alustaa äänimallin
-              this.setModel();
-              const checkpointURL = this.model + 'model.json'; // model topology
-              const metadataURL = this.model + 'metadata.json'; // model metadata
-          
-              const recognizer = speechCommands.create(
-                'BROWSER_FFT', // fourier transform type, not useful to change
-                undefined, // speech commands vocabulary feature, not useful for your models
-                checkpointURL,
-                metadataURL
-              );
-          
-              // check that model and metadata are loaded via HTTPS requests.
-              await recognizer.ensureModelLoaded();
-              return recognizer;
-            }
-          
-            async init() {
-              //ilmoitetaan komponentille että harjoitus alkaa
-              this.started = true;
-              this.practicing = true;
-              this.pickOneFeedbackIndex();
-              const recognizer = await this.createModel();
-              const classLabels = recognizer.wordLabels(); // get class labels
-          
-              //aloittaa kuuntelun
-              recognizer.listen(
-                async (result) => {
-                  const scores = result.scores; //ottaa AI-mallista kuunnellessa eri classien todennäköisyydet taulukkoon talteen
-          
-          
-                  console.log(classLabels[this.target]);
-                  console.log(classLabels[0]);
-                  console.log(scores[this.target]);
-          
-                  //jos harjoite menee oikein siirrytään seuraavaan
-                  if (scores[this.target] > this.confidence) {
-          
-                    
-                    console.log('oikein :d');
-                    //confidence nostetaan hetkittäisesti korkealle jotta ääniefekti ei looppaa toistuvista oikeista vastauksista
-                    this.confidence = 1.1;
-                    this.playAudio(this.correctAudio);
-                    this.penalty = false;
-                    this.correct = true;
-                    await this.delay(2500);
-                    this.nextPractice();
-                  }
-          
-                  if (scores[this.target] < this.confidence && scores[0] < 0.1) {
-                    console.log("viärä vastaus");
-                    this.wrongSignals++;
-                    console.log("wrongSignals " + this.wrongSignals);
-                    if (this.wrongSignals === 5) {
-                      this.wrongSignals = 0;
-                      this.penalties++;
-                      console.log("penaalit" + this.penalties);
-                      this.penalty = true;
-                    }
-          
-                  }
-          
-                  //tarkistetaan onko harjoitteita suoritettu enemmän, kuin niitä on
-                  if (this.completed === this.practices.length) {
-                    //this.practicing = false; 
-                    this.finished = true;
-                    let currency = this.user.currency + this.messageService.tutorial.reward;
-                    this.userService.updateCurrency(this.user, currency).subscribe();
-                    let expPenalty = this.penalties * 3;
-                    this.trueExp = this.messageService.tutorial.rewardxp - expPenalty;
-                    this.updateUserExperience(this.user, this.trueExp);
-                    if (this.user.experience + this.messageService.tutorial.rewardxp > 50) {
-                      this.levelup = true;
-                    }
-                    recognizer.stopListening();
-                    console.log('init() ' + this.practices);
-                  }
-                },
-                {
-                  includeSpectrogram: true, // in case listen should return result.spectrogram
-                  probabilityThreshold: 0.75,
-                  invokeCallbackOnNoiseAndUnknown: true,
-                  overlapFactor: 0.5, // probably want between 0.5 and 0.75. More info in README
-                }
-              );
-          
-              // Stop the recognition in 5 seconds.
-              // setTimeout(() => recognizer.stopListening(), 5000);
-            }
-          }</code></pre>
+          console.log('oikein :d');
+          //confidence nostetaan hetkittäisesti korkealle jotta ääniefekti ei looppaa toistuvista oikeista vastauksista
+          this.confidence = 1.1;
+          this.playAudio(this.correctAudio);
+          this.penalty = false;
+          this.correct = true;
+          await this.delay(2500);
+          this.nextPractice();
+        }
+
+        if (scores[this.target] < this.confidence && scores[0] < 0.1) {
+          console.log("viärä vastaus");
+          this.wrongSignals++;
+          console.log("wrongSignals " + this.wrongSignals);
+          if (this.wrongSignals === 5) {
+            this.wrongSignals = 0;
+            this.penalties++;
+            console.log("penaalit" + this.penalties);
+            this.penalty = true;
+          }
+
+        }
+
+        //tarkistetaan onko harjoitteita suoritettu enemmän, kuin niitä on
+        if (this.completed === this.practices.length) {
+          //this.practicing = false; 
+          this.finished = true;
+          let currency = this.user.currency + this.messageService.tutorial.reward;
+          this.userService.updateCurrency(this.user, currency).subscribe();
+          let expPenalty = this.penalties * 3;
+          this.trueExp = this.messageService.tutorial.rewardxp - expPenalty;
+          this.updateUserExperience(this.user, this.trueExp);
+          if (this.user.experience + this.messageService.tutorial.rewardxp > 50) {
+            this.levelup = true;
+          }
+          recognizer.stopListening();
+          console.log('init() ' + this.practices);
+        }
+      },
+      {
+        includeSpectrogram: true, // in case listen should return result.spectrogram
+        probabilityThreshold: 0.75,
+        invokeCallbackOnNoiseAndUnknown: true,
+        overlapFactor: 0.5, // probably want between 0.5 and 0.75. More info in README
+      }
+    );
+
+    // Stop the recognition in 5 seconds.
+    // setTimeout(() => recognizer.stopListening(), 5000);
+  }
+}</code></pre>
       </div>
 
+      <h4 class="title is-4">mitä jäi käteen?</h4>
 
-
-      -kerro toimintalogiikasta <br />
-      -mainitse myös backend <br />
-      -ongelmat äänimallien nauhoituksessa <br />
-      -mitä tästä opittiin
+      <ul>
+        <li>Tensorflow-mallien kouluttaminen</li>
+        <li>Äänitunnistuksen implementointi Angular-sovellukseen</li>
+        <li>Tietueiden hakeminen tietokannasta sovelluksessa käyttöä varten</li>
+        <li>Sequelize.js:n perustoiminnallisuus</li>
+      </ul>
     </div>
 
     <div class="block">
-      <h4 class="title">inventaario</h4>
+      <h3 class="title is-3">inventaario</h3>
+
+      <div class="tab">
+        <button class="tablinks1" onclick="openTab1(event, 'asd')"
+          id="defaultOpen1">asd</button>
+        <button class="tablinks1" onclick="openTab1(event, 'kaka')">Practice.js</button>
+        <button class="tablinks1"
+          onclick="openTab1(event, 'pyly')">practicecontroller.js</button>
+        <button class="tablinks1"
+          onclick="openTab1(event, 'dsa')">practice.component.ts</button>
+      </div>
+
+      <!-- Tab content -->
+      <div id="asd" class="tabcontent2">
+        <p class="tabinfo">asd</p>
+        <pre><code class="language-typescript">
+  </code></pre>
+      </div>
+
+      <div id="kaka" class="tabcontent2">
+        <p class="tabinfo">kaka</p>
+        <pre>
+    <code class="language-typescript"></code>
+  </pre>
+      </div>
+
+      <div id="pyly" class="tabcontent2">
+        <p class="tabinfo">pyly
+        </p>
+        <pre>
+  <code class="language-typescript"></code>
+</pre>
+      </div>
+
+      <div id="dsa" class="tabcontent2">
+        <p class="tabinfo">666</p>
+        <pre><code class="language-typescript"></code></pre>
+      </div>
+
       -kerro toimintalogiikasta <br />
       -kerro asioiden siirtämisestä serviceihin ja hypetä positiivisena oppimiskokemuksena<br />
       -kerro backendistä<br />
@@ -571,7 +642,7 @@ module.exports = practicecontroller;
       <h4 class="title">muut tekniset tehtävät</h4>
       -muiden ryhmäläisten auttaminen teknisissä tehtävissä <br />
       -muiden opastaminen angularin kanssa <br />
-      -tietokanta <br />
+      -tietokanta <br/>
     </div>
 
     <div class="block">
@@ -592,6 +663,7 @@ module.exports = practicecontroller;
   <script src="./js/scripts.js"></script>
   <script>
     document.getElementById("defaultOpen").click();
+    document.getElementById("defaultOpen1").click();
   </script>
 </body>
 
