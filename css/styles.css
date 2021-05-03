@@ -199,6 +199,11 @@ iframe {
     transform: scale(1.7); /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
   }
 
+  .viteo {
+      width:50%;
+      margin:auto;
+  }
+
   .block {
       margin-top:40px;
   }
