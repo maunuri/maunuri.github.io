@@ -240,6 +240,8 @@ iframe {
   .sprint {
       width:60%;
       margin:auto;
+      margin-top:1em;
+      margin-bottom:1em;
   }
 
   .sprint h4 {
