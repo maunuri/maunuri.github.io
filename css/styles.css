@@ -80,7 +80,7 @@ h1 {
 }
 
 h2 {
-    margin-top:2em;
+    margin-top:1em;
 }
 
 h4 {
@@ -90,6 +90,16 @@ h4 {
 p {
     margin-top:1em;
     margin-bottom:1em;
+}
+
+.projektikuva {
+    margin-top:2em;
+}
+
+.profiilikuva {
+    width:80%;
+    border-radius:50%;
+    border: solid 2px black;
 }
 
 .language-typescript {
